@@ -6,132 +6,114 @@
     <title>Jumping Game</title>
     <style>
         /* Add any necessary styling here */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        #gameCanvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
         #player {
             position: absolute;
             width: 30px;
             height: 30px;
             background-color: red;
         }
-        #obstacle {
+        .obstacle {
             position: absolute;
-            width: 10px;
-            height: 200px;
+            width: 20px;
+            height: 50px;
             background-color: green;
+            bottom: 0;
         }
     </style>
 </head>
 <body>
-    <div id="player"></div>
-    <div id="obstacle"></div>
-
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
     <script>
-        const player = document.getElementById('player');
-        const obstacle = document.getElementById('obstacle');
-        let playerY = 300; // Initial player position
-        let jumpHeight = 100; // How high the player jumps
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        // Update game state
-        function updateGame() {
-            // Move obstacle left
-            obstacle.style.left = parseInt(obstacle.style.left) - 1 + 'px';
+        const player = {
+            x: 100,
+            y: 400,
+            width: 30,
+            height: 30,
+            speed: 5,
+            jumping: false,
+            jumpHeight: 100,
+        };
 
-            // Check collision
-            if (checkCollision()) {
-                gameOver();
+        const obstacles = [
+            { x: 300, width: 20 },
+            { x: 500, width: 20 },
+            // Add more obstacles here
+        ];
+
+        function drawPlayer() {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'green';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, canvas.height - obstacle.height, obstacle.width, obstacle.height);
+            });
+        }
+
+        function update() {
+            // Handle player movement
+            if (keys.left) {
+                player.x -= player.speed;
+            }
+            if (keys.right) {
+                player.x += player.speed;
             }
 
-            // Update player position
-            player.style.top = playerY + 'px';
-        }
-
-        // Check if player hits the obstacle
-        function checkCollision() {
-            const playerRect = player.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
-            return playerRect.right > obstacleRect.left &&
-                   playerRect.left < obstacleRect.right &&
-                   playerRect.bottom > obstacleRect.top &&
-                   playerRect.top < obstacleRect.bottom;
-        }
-
-        // Handle jump
-        function jump() {
-            if (playerY === 300) {
-                playerY -= jumpHeight;
+            // Handle jumping
+            if (keys.space && !player.jumping) {
+                player.jumping = true;
+                player.y -= player.jumpHeight;
                 setTimeout(() => {
-                    playerY += jumpHeight;
+                    player.y += player.jumpHeight;
+                    player.jumping = false;
                 }, 500); // Adjust jump duration
             }
+
+            // Update obstacles
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 1; // Move obstacles left
+            });
         }
 
-        // Game over
-        function gameOver() {
-            alert('Game Over! Try again.');
-            // You can reset the game or move to the next level here
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawObstacles();
         }
 
-        // Start game loop
-        setInterval(updateGame, 20); // Adjust frame rate
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ') {
-                jump();
-            }
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Keyboard input handling
+        const keys = {};
+        document.addEventListener('keydown', e => {
+            keys[e.key] = true;
         });
-    </script>
-</body>
-</html>
-
-        const obstacle = document.getElementById('obstacle');
-        let playerY = 300; // Initial player position
-        let jumpHeight = 100; // How high the player jumps
-
-        // Update game state
-        function updateGame() {
-            // Move obstacle left
-            obstacle.style.left = parseInt(obstacle.style.left) - 1 + 'px';
-
-            // Check collision
-            if (checkCollision()) {
-                gameOver();
-            }
-
-            // Update player position
-            player.style.top = playerY + 'px';
-        }
-
-        // Check if player hits the obstacle
-        function checkCollision() {
-            const playerRect = player.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
-            return playerRect.right > obstacleRect.left &&
-                   playerRect.left < obstacleRect.right &&
-                   playerRect.bottom > obstacleRect.top &&
-                   playerRect.top < obstacleRect.bottom;
-        }
-
-        // Handle jump
-        function jump() {
-            if (playerY === 300) {
-                playerY -= jumpHeight;
-                setTimeout(() => {
-                    playerY += jumpHeight;
-                }, 500); // Adjust jump duration
-            }
-        }
-
-        // Game over
-        function gameOver() {
-            alert('Game Over! Try again.');
-            // You can reset the game or move to the next level here
-        }
-
-        // Start game loop
-        setInterval(updateGame, 20); // Adjust frame rate
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ') {
-                jump();
-            }
+        document.addEventListener('keyup', e => {
+            keys[e.key] = false;
         });
+
+        // Start the game loop
+        gameLoop();
     </script>
 </body>
 </html>
