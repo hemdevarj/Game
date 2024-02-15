@@ -80,3 +80,58 @@
     </script>
 </body>
 </html>
+
+        const obstacle = document.getElementById('obstacle');
+        let playerY = 300; // Initial player position
+        let jumpHeight = 100; // How high the player jumps
+
+        // Update game state
+        function updateGame() {
+            // Move obstacle left
+            obstacle.style.left = parseInt(obstacle.style.left) - 1 + 'px';
+
+            // Check collision
+            if (checkCollision()) {
+                gameOver();
+            }
+
+            // Update player position
+            player.style.top = playerY + 'px';
+        }
+
+        // Check if player hits the obstacle
+        function checkCollision() {
+            const playerRect = player.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+            return playerRect.right > obstacleRect.left &&
+                   playerRect.left < obstacleRect.right &&
+                   playerRect.bottom > obstacleRect.top &&
+                   playerRect.top < obstacleRect.bottom;
+        }
+
+        // Handle jump
+        function jump() {
+            if (playerY === 300) {
+                playerY -= jumpHeight;
+                setTimeout(() => {
+                    playerY += jumpHeight;
+                }, 500); // Adjust jump duration
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            alert('Game Over! Try again.');
+            // You can reset the game or move to the next level here
+        }
+
+        // Start game loop
+        setInterval(updateGame, 20); // Adjust frame rate
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                jump();
+            }
+        });
+    </script>
+</body>
+</html>
